@@ -27,3 +27,12 @@ body {
   height: 100%;
   background-color: #ff0000;
 }
+
+.correct {
+  color: green;
+}
+
+.incorrect {
+  color: red;
+  text-decoration: underline;
+}

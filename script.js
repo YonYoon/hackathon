@@ -1,18 +1,18 @@
 const words = [
-  "apple",
-  "banana",
-  "orange",
-  "grape",
-  "melon",
-  "strawberry",
-  "pineapple",
-  "cherry",
-  "blueberry",
-  "kiwi",
-  "mango",
-  "peach"
+  "guys,",
+  "please,",
+  "meet",
+  "your",
+  "amazing",
+  "iOS",
+  "mentor",
+  "Leila",
+  "who",
+  "is",
+  "gonna",
+  "support"
 ];
- // Array of words for the game
+// Array of words for the game
 
 const wordDisplay = document.getElementById('word-display');
 const userInput = document.getElementById('user-input');
@@ -37,37 +37,55 @@ updateHealthBar();
 userInput.addEventListener('input', function() {
   if (isGameOver) return;
 
-  const inputText = userInput.value.trim();
+  const arrayWord = wordDisplay.querySelectorAll('span');
+  const arrayInput = userInput.value.split('');
 
-  if (inputText.length === currentWord.length) {
-    if (inputText === currentWord) {
-      // Clear the user input
-      userInput.value = '';
-
-      // Increment the current word index
-      currentWordIndex++;
-
-      // Check if there are more words
-      if (currentWordIndex < words.length) {
-        currentWord = words[currentWordIndex];
-        wordDisplay.textContent = currentWord;
-        errorMessage.textContent = '';
-        x += 100;
-        y -= 95;
-      } else {
-        // Display game completion message
-        wordDisplay.textContent = 'Game Completed!';
-        errorMessage.textContent = '';
-        isGameOver = true;
-        showTryAgainButton();
-      }
+  let correct = true;
+  arrayWord.forEach((characterSpan, index) => {
+    const character = arrayInput[index];
+    if (character == null) {
+      characterSpan.classList.remove('correct');
+      characterSpan.classList.remove('incorrect');
+      correct = false;
+    } else if (character === characterSpan.innerText) {
+      characterSpan.classList.add('correct');
+      characterSpan.classList.remove('incorrect');
     } else {
-      // Display error message
-      errorMessage.textContent = 'Incorrect! Try again.';
-      decreaseHealth(10);
+      characterSpan.classList.remove('correct');
+      characterSpan.classList.add('incorrect');
+      correct = false;
     }
+  });
+
+  if (correct && userInput.value.length === currentWord.length) {
+    // Clear the user input
+    userInput.value = '';
+
+    // Increment the current word index
+    currentWordIndex++;
+
+    // Check if there are more words
+    if (currentWordIndex < words.length) {
+      currentWord = words[currentWordIndex];
+      renderWords();
+      errorMessage.textContent = '';
+      x += 100;
+      y -= 95;
+    } else {
+      // Display game completion message
+      wordDisplay.textContent = 'Game Completed!';
+      errorMessage.textContent = '';
+      isGameOver = true;
+      showTryAgainButton();
+    }
+  } else if (userInput.value.length === currentWord.length) {
+    // Display error message
+    errorMessage.textContent = 'Incorrect! Try again.';
+    decreaseHealth(10);
   }
 });
+
+renderWords(); // Render words at the beginning
 
 const canvas = document.getElementById('canvas1');
 const ctx = canvas.getContext('2d');
@@ -119,7 +137,7 @@ function resetGame() {
   currentWord = words[currentWordIndex];
   health = 100;
   isGameOver = false;
-  wordDisplay.textContent = currentWord;
+  renderWords()
   updateHealthBar();
   userInput.value = '';
   userInput.disabled = false;
@@ -130,6 +148,19 @@ function resetGame() {
   hideTryAgainButton();
 }
 
-tryAgainButton.addEventListener('click', function() {
+tryAgainButton.addEventListener('click', function () {
   resetGame();
 });
+
+function renderWords() {
+  wordDisplay.innerHTML = ''; // Clear the current display
+
+  // Create a span for each character in the array of words
+  currentWord.split('').forEach(character => {
+    const characterSpan = document.createElement('span');
+    characterSpan.innerText = character;
+    wordDisplay.appendChild(characterSpan);
+  });
+
+  userInput.value = '';
+}
