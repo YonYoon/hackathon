@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,14 +8,16 @@
   <script src="script.js" defer></script>
   <title>Hackathon</title>
 </head>
-
 <body>
-  <div id="square"></div>
-  <div class="timer" id="timer"></div>
-  <div class="container">
-    <div class="quote-display" id="quoteDisplay"></div>
-    <textarea id="quoteInput" class="quote-input" autofocus></textarea>
+  <div id="word-display"></div>
+  <input type="text" id="user-input" autofocus>
+  <div id="error-message"></div>
+  <div id="health-bar">
+    <div id="health-progress"></div>
   </div>
-</body>
+  <div id="lost-message"></div>
+  <button id="try-again-button" hidden>Try Again</button>
 
+  <canvas id="canvas1"></canvas>
+</body>
 </html>

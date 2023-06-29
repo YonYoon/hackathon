@@ -1,75 +1,135 @@
-// Get the square element
-var square = document.getElementById('square');
+const words = [
+  "apple",
+  "banana",
+  "orange",
+  "grape",
+  "melon",
+  "strawberry",
+  "pineapple",
+  "cherry",
+  "blueberry",
+  "kiwi",
+  "mango",
+  "peach"
+];
+ // Array of words for the game
 
-// Set initial position
-var posX = 0;
-var posY = 0;
+const wordDisplay = document.getElementById('word-display');
+const userInput = document.getElementById('user-input');
+const errorMessage = document.getElementById('error-message');
+const healthProgress = document.getElementById('health-progress');
+const lostMessage = document.getElementById('lost-message');
+const tryAgainButton = document.getElementById('try-again-button');
 
-const RANDOM_QUOTE_API_URL = 'http://api.quotable.io/random'
-const quoteDisplayElement = document.getElementById('quoteDisplay')
-const quoteInputElement = document.getElementById('quoteInput')
-const timerElement = document.getElementById('timer')
+let currentWordIndex = 0;
+let currentWord = words[currentWordIndex];
+let health = 100;
+let isGameOver = false;
 
-quoteInputElement.addEventListener('input', () => {
-  const arrayQuote = quoteDisplayElement.querySelectorAll('span')
-  const arrayValue = quoteInputElement.value.split('')
+// Concatenate the words to form the complete text
+const completeText = words.join(' ');
 
-  let correct = true
-  arrayQuote.forEach((characterSpan, index) => {
-    const character = arrayValue[index]
-    if (character == null) {
-      characterSpan.classList.remove('correct')
-      characterSpan.classList.remove('incorrect')
-      correct = false
-    } else if (character === characterSpan.innerText) {
-      characterSpan.classList.add('correct')
-      characterSpan.classList.remove('incorrect')
+// Display the complete text
+wordDisplay.textContent = completeText;
+updateHealthBar();
+
+// Event listener for user input
+userInput.addEventListener('input', function() {
+  if (isGameOver) return;
+
+  const inputText = userInput.value.trim();
+
+  if (inputText.length === currentWord.length) {
+    if (inputText === currentWord) {
+      // Clear the user input
+      userInput.value = '';
+
+      // Increment the current word index
+      currentWordIndex++;
+
+      // Check if there are more words
+      if (currentWordIndex < words.length) {
+        currentWord = words[currentWordIndex];
+        wordDisplay.textContent = currentWord;
+        errorMessage.textContent = '';
+        x += 100;
+        y -= 95;
+      } else {
+        // Display game completion message
+        wordDisplay.textContent = 'Game Completed!';
+        errorMessage.textContent = '';
+        isGameOver = true;
+        showTryAgainButton();
+      }
     } else {
-      characterSpan.classList.remove('correct')
-      characterSpan.classList.add('incorrect')
-      correct = false
+      // Display error message
+      errorMessage.textContent = 'Incorrect! Try again.';
+      decreaseHealth(10);
     }
-  })
-
-  if (correct) {
-    posX += 10; // Move the square to the right if the word is correct
-    renderNewQuote()
   }
+});
 
-  // Update the square's position
-  square.style.top = posY + 'px';
-  square.style.left = posX + 'px';
-})
+const canvas = document.getElementById('canvas1');
+const ctx = canvas.getContext('2d');
 
-function getRandomQuote() {
-  return fetch(RANDOM_QUOTE_API_URL)
-    .then(response => response.json())
-    .then(data => data.content)
+const CANVAS_WIDTH = canvas.width = 1200;
+const CANVAS_HEIGHT = canvas.height = 1200;
+
+let x = 1;
+let y = 1000;
+
+function animate() {
+  ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  ctx.fillRect(x, y, 100, 100);
+
+  if (isGameOver) return;
+
+  requestAnimationFrame(animate);
 }
 
-async function renderNewQuote() {
-  const quote = await getRandomQuote()
-  quoteDisplayElement.innerHTML = ''
-  quote.split('').forEach(character => {
-    const characterSpan = document.createElement('span')
-    characterSpan.innerText = character
-    quoteDisplayElement.appendChild(characterSpan)
-  })
-  quoteInputElement.value = null
-  startTimer()
+// Set the animation interval for faster animation
+const animationInterval = 250; // Adjust the interval value for desired speed
+animate();
+
+function decreaseHealth(amount) {
+  health -= amount;
+  if (health <= 0) {
+    health = 0;
+    isGameOver = true;
+    showTryAgainButton();
+    userInput.disabled = true;
+  }
+  updateHealthBar();
 }
 
-let startTime
-function startTimer() {
-  timerElement.innerText = 0
-  startTime = new Date()
-  setInterval(() => {
-    timer.innerText = getTimerTime()
-  }, 1000)
+function updateHealthBar() {
+  healthProgress.style.width = `${health}%`;
 }
 
-function getTimerTime() {
-  return Math.floor((new Date() - startTime) / 1000)
+function showTryAgainButton() {
+  tryAgainButton.hidden = false;
 }
 
-renderNewQuote()
+function hideTryAgainButton() {
+  tryAgainButton.hidden = true;
+}
+
+function resetGame() {
+  currentWordIndex = 0;
+  currentWord = words[currentWordIndex];
+  health = 100;
+  isGameOver = false;
+  wordDisplay.textContent = currentWord;
+  updateHealthBar();
+  userInput.value = '';
+  userInput.disabled = false;
+  errorMessage.textContent = '';
+  x = 0;
+  y = 1000;
+  animate();
+  hideTryAgainButton();
+}
+
+tryAgainButton.addEventListener('click', function() {
+  resetGame();
+});
