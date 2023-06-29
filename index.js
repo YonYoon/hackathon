@@ -5,27 +5,71 @@ var square = document.getElementById('square');
 var posX = 0;
 var posY = 0;
 
-// Define the keyboard event listener
-document.addEventListener('keydown', function(event) {
-  var key = event.key.toLowerCase();
+const RANDOM_QUOTE_API_URL = 'http://api.quotable.io/random'
+const quoteDisplayElement = document.getElementById('quoteDisplay')
+const quoteInputElement = document.getElementById('quoteInput')
+const timerElement = document.getElementById('timer')
 
-  // Move the square based on the pressed key
-  switch (key) {
-    case 'w':
-      posY -= 10;
-      break;
-    case 'a':
-      posX -= 10;
-      break;
-    case 's':
-      posY += 10;
-      break;
-    case 'd':
-      posX += 10;
-      break;
+quoteInputElement.addEventListener('input', () => {
+  const arrayQuote = quoteDisplayElement.querySelectorAll('span')
+  const arrayValue = quoteInputElement.value.split('')
+
+  let correct = true
+  arrayQuote.forEach((characterSpan, index) => {
+    const character = arrayValue[index]
+    if (character == null) {
+      characterSpan.classList.remove('correct')
+      characterSpan.classList.remove('incorrect')
+      correct = false
+    } else if (character === characterSpan.innerText) {
+      characterSpan.classList.add('correct')
+      characterSpan.classList.remove('incorrect')
+    } else {
+      characterSpan.classList.remove('correct')
+      characterSpan.classList.add('incorrect')
+      correct = false
+    }
+  })
+
+  if (correct) {
+    posX += 10; // Move the square to the right if the word is correct
+    renderNewQuote()
   }
 
   // Update the square's position
   square.style.top = posY + 'px';
   square.style.left = posX + 'px';
-});
+})
+
+function getRandomQuote() {
+  return fetch(RANDOM_QUOTE_API_URL)
+    .then(response => response.json())
+    .then(data => data.content)
+}
+
+async function renderNewQuote() {
+  const quote = await getRandomQuote()
+  quoteDisplayElement.innerHTML = ''
+  quote.split('').forEach(character => {
+    const characterSpan = document.createElement('span')
+    characterSpan.innerText = character
+    quoteDisplayElement.appendChild(characterSpan)
+  })
+  quoteInputElement.value = null
+  startTimer()
+}
+
+let startTime
+function startTimer() {
+  timerElement.innerText = 0
+  startTime = new Date()
+  setInterval(() => {
+    timer.innerText = getTimerTime()
+  }, 1000)
+}
+
+function getTimerTime() {
+  return Math.floor((new Date() - startTime) / 1000)
+}
+
+renderNewQuote()
